@@ -1,11 +1,12 @@
 #!/usr/bin/env texlua
 -- Copyright (c) 2026 Ruilin Mao
 -- SPDX-License-Identifier: MIT
-local version = "0.1.0"
+local version = "0.1.1"
 -- Run with the texlua from the same TeX Live installation as the engine.
 local windows = package.config:sub(1, 1) == "\\"
 local help = [[
-Usage: texlua texlive-pkgassist.lua [options] document.tex
+Usage: tlpa [options] document.tex
+   or: texlua texlive-pkgassist.lua [options] document.tex
 
   --engine NAME         Select pdflatex (default), xelatex, lualatex or latex
   --tree system|user|auto

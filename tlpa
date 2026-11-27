@@ -1,0 +1,2 @@
+#!/bin/sh
+exec texlua "$(dirname "$0")/texlive-pkgassist.lua" "$@"

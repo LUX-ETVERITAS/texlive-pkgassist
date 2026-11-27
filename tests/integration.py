@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 
@@ -21,9 +22,21 @@ def run(cwd, env, *args, success=True, script=SCRIPT):
 
 def main(work):
     env = dict(os.environ, TEXMFHOME=str(work / "user tree"))
-    assert run(work, env, "--version").strip() == "texlive-pkgassist 0.1.0"
+    assert run(work, env, "--version").strip() == "texlive-pkgassist 0.1.1"
     paper = work / "my paper.tex"
     paper.write_text(r"\documentclass{article}\begin{document}Test.\end{document}")
+    # Invoke the installed short command from a separate project directory.
+    bindir = work / "package tools"
+    bindir.mkdir()
+    for name in ("tlpa", "tlpa.cmd", SCRIPT.name):
+        shutil.copy2(SCRIPT.with_name(name), bindir / name)
+    alias_env = dict(env, PATH=str(bindir) + os.pathsep + env["PATH"])
+    alias = ["cmd.exe", "/d", "/c", "tlpa"] if os.name == "nt" else ["tlpa"]
+    subprocess.run(alias + ["--tree", "user", paper.name], cwd=work, env=alias_env,
+                   check=True, timeout=120)
+    assert paper.with_suffix(".pdf").read_bytes().startswith(b"%PDF")
+    invalid = subprocess.run(alias + ["--tree", "invalid"], cwd=work, env=alias_env)
+    assert invalid.returncode == 2
     run(work, env, "--tree", "invalid", paper.name, success=False)
     log = run(work, env, "--tree=system", "--usermode", paper.name, success=False)
     assert "Conflicting installation tree options" in log

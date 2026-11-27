@@ -1,17 +1,19 @@
 # texlive-pkgassist
 
-版本 0.1.0 · 维护者 Ruilin Mao · [MIT 许可证](LICENSE)
+版本 0.1.1 · 维护者 Ruilin Mao · [MIT 许可证](LICENSE)
 
 用 TeX Live 自带的 `texlua` 编译 LaTeX 文档。脚本按文件名在仓库中查找所属宏包，例如缺少 `subcaption.sty` 时安装 `caption`。支持 Windows、Linux 上的上游 TeX Live 和 macOS 上的 MacTeX。
 
 ## 编译
 
-在项目目录中运行，确保 `texlua`、所选引擎和 `tlmgr` 来自同一套安装。默认引擎为 `pdflatex`，也支持 `xelatex`、`lualatex` 和 `latex`。
+解压后，将包含 `tlpa`、`tlpa.cmd` 和 `texlive-pkgassist.lua` 的目录加入 `PATH`，三个文件保留在一起。在项目目录中运行，确保 `texlua`、所选引擎和 `tlmgr` 来自同一套安装。默认引擎为 `pdflatex`，也支持 `xelatex`、`lualatex` 和 `latex`。
 
 ```sh
-texlua texlive-pkgassist.lua main.tex
-texlua texlive-pkgassist.lua --engine xelatex --preflight "中文论文.tex"
+tlpa main.tex
+tlpa --engine xelatex --preflight "中文论文.tex"
 ```
+
+也可以通过完整命令 `texlua 脚本路径/texlive-pkgassist.lua main.tex` 运行。
 
 `--preflight` 扫描主文件导言区里的 `\documentclass`、`\usepackage` 和 `\RequirePackage`。脚本跳过已能找到的文件，将其余名字合并为一次仓库查询，批量安装唯一匹配的包，再启动引擎。静态扫描不会展开宏或判断条件分支，因而可能预装未使用的包。子文件、动态加载和传递依赖仍可在实际编译报错时补装。
 
@@ -26,8 +28,8 @@ texlua texlive-pkgassist.lua --engine xelatex --preflight "中文论文.tex"
 | `--tree auto`（默认） | 先使用系统树 | 收到上述只读诊断后，尝试在个人树安装宏包；二进制工具仍需可写的系统树 |
 
 ```sh
-texlua texlive-pkgassist.lua --tree system --preflight main.tex
-texlua texlive-pkgassist.lua --tree user --preflight main.tex
+tlpa --tree system --preflight main.tex
+tlpa --tree user --preflight main.tex
 ```
 
 `--usermode` 是 `--tree user` 的兼容写法。选项控制新增包的安装位置；引擎会继续使用正常搜索路径中已有的宏包。
@@ -39,9 +41,9 @@ texlua texlive-pkgassist.lua --tree user --preflight main.tex
 ## 参考文献、外部工具和字体
 
 ```sh
-texlua texlive-pkgassist.lua --latexmk --preflight main.tex
-texlua texlive-pkgassist.lua --require-tool makeindex=makeindex --latexmk main.tex
-texlua texlive-pkgassist.lua --engine lualatex --font "Libertinus Serif=libertinus-fonts" main.tex
+tlpa --latexmk --preflight main.tex
+tlpa --require-tool makeindex=makeindex --latexmk main.tex
+tlpa --engine lualatex --font "Libertinus Serif=libertinus-fonts" main.tex
 ```
 
 `--latexmk` 将构建交给 latexmk，它会跟踪输入变化，运行 Biber 等工具并完成后续编译。默认单轮引擎模式遇到 biblatex 请求运行 Biber 时也会转入 latexmk。缺少 latexmk 或 Biber 时，脚本会尝试安装对应的 TeX Live 包。运行工具还需要其平台依赖，例如 latexmk 所需的 Perl 模块。

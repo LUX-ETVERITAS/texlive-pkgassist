@@ -1,16 +1,19 @@
 # texlive-pkgassist
 
-Version 0.1.0 · Maintained by Ruilin Mao · MIT License
+Version 0.1.1 · Maintained by Ruilin Mao · MIT License
 
 Compile a LaTeX document and install the TeX Live packages that supply its missing files. For example, when LaTeX reports a missing `subcaption.sty`, the script asks `tlmgr` which package provides it, installs `caption`, and retries the build.
 
 ## Quick start
 
-Unpack the release and run the following from your document's project directory. Substitute the path to the unpacked script.
+Unpack the release and add the directory containing `tlpa`, `tlpa.cmd`, and `texlive-pkgassist.lua` to your `PATH`. Keep the launchers alongside the Lua script. From your document's project directory, run:
 
 ```sh
-texlua /path/to/texlive-pkgassist.lua --tree user --preflight main.tex
+tlpa main.tex
+tlpa --tree user --preflight main.tex
 ```
+
+You can also run `texlua /path/to/texlive-pkgassist.lua main.tex` directly.
 
 Use `texlua`, `tlmgr`, and your LaTeX engine from the same upstream TeX Live installation on Windows or Linux, or from MacTeX on macOS. Package downloads use the configured TeX Live repository. It must match the year of the local installation.
 

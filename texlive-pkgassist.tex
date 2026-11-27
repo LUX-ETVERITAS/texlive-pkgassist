@@ -13,13 +13,14 @@
 \newcommand{\flag}[1]{\texttt{-{}-#1}}
 \begin{document}
 {\LARGE\bfseries texlive-pkgassist}\par
-User manual \enspace / \enspace Version 0.1.0 \enspace / \enspace Ruilin Mao
+User manual \enspace / \enspace Version 0.1.1 \enspace / \enspace Ruilin Mao
 
 \section*{Build a document}
-Run the script from the project directory using the \opt{texlua} that
-belongs to your TeX Live installation. For the examples below, put the script
-in that directory or replace its name with its path. Save this document as
-\opt{main.tex}.
+Add the unpacked directory containing \opt{tlpa}, \opt{tlpa.cmd} and
+\opt{texlive-pkgassist.lua} to your \opt{PATH}. Run \opt{tlpa} from your
+project directory using the \opt{texlua} from your TeX Live installation.
+You can also invoke the Lua script directly with \opt{texlua}.
+Save this document as \opt{main.tex}.
 \begin{verbatim}
 \documentclass{article}
 \usepackage{subcaption}
@@ -29,7 +30,7 @@ A minimal example.
 \end{verbatim}
 Compile it using the personal TeX tree for new packages.
 \begin{verbatim}
-texlua texlive-pkgassist.lua --tree user --preflight main.tex
+tlpa --tree user --preflight main.tex
 \end{verbatim}
 If \opt{subcaption.sty} is missing, the preflight searches the configured
 TeX Live repository, finds the provider \opt{caption}, and installs it.
@@ -77,7 +78,7 @@ also triggers a switch to latexmk. Missing Biber and latexmk executables can
 be installed into a writable TeX Live installation. Their runtime dependencies,
 such as the Perl modules used by latexmk, must be available.
 \begin{verbatim}
-texlua texlive-pkgassist.lua --latexmk --preflight thesis.tex
+tlpa --latexmk --preflight thesis.tex
 \end{verbatim}
 
 \section*{Map fonts and tools}
