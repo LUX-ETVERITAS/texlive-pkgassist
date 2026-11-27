@@ -1,0 +1,108 @@
+% Copyright (c) 2026 Ruilin Mao
+% SPDX-License-Identifier: MIT
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\setlength{\textwidth}{160mm}
+\setlength{\oddsidemargin}{0mm}
+\setlength{\textheight}{240mm}
+\setlength{\topmargin}{-12mm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\newcommand{\opt}[1]{\texttt{#1}}
+\newcommand{\flag}[1]{\texttt{-{}-#1}}
+\begin{document}
+{\LARGE\bfseries texlive-pkgassist}\par
+User manual \enspace / \enspace Version 0.1.0 \enspace / \enspace Ruilin Mao
+
+\section*{Build a document}
+Run the script from the project directory using the \opt{texlua} that
+belongs to your TeX Live installation. For the examples below, put the script
+in that directory or replace its name with its path. Save this document as
+\opt{main.tex}.
+\begin{verbatim}
+\documentclass{article}
+\usepackage{subcaption}
+\begin{document}
+A minimal example.
+\end{document}
+\end{verbatim}
+Compile it using the personal TeX tree for new packages.
+\begin{verbatim}
+texlua texlive-pkgassist.lua --tree user --preflight main.tex
+\end{verbatim}
+If \opt{subcaption.sty} is missing, the preflight searches the configured
+TeX Live repository, finds the provider \opt{caption}, and installs it.
+When the engine succeeds, the output is \opt{main.pdf} in the working
+directory. With all required files present, this example compiles offline.
+
+\section*{Choose where packages go}
+\begin{description}
+\item[\flag{tree user}] Install relocatable packages into \opt{TEXMFHOME}.
+The first package-manager operation initializes this tree if necessary.
+\flag{usermode} is an alias. Preinstall any required executable tools.
+\item[\flag{tree system}] Install into the current TeX Live installation.
+On Windows, if \opt{tlmgr} reports that the installation is read-only, the script
+requests authorization for the install command using PowerShell and UAC.
+Cancelling stops the build. On Linux and macOS, the error gives the command
+an administrator can run. Compilation continues with the privileges of the
+original process after a successful install.
+\item[\flag{tree auto}] The default tries the system tree first. On the
+recognized read-only error, it retries package installation in the user tree.
+Executable tools require a writable installation or prior provisioning.
+\end{description}
+
+Use a repository matching the year of your upstream TeX Live or MacTeX.
+For a TeX installation managed by a Linux distribution, use its package
+manager to provision system packages.
+
+\newpage
+\section*{Control the build}
+\flag{engine} accepts \opt{pdflatex} (the default), \opt{lualatex},
+\opt{xelatex} and \opt{latex}. The last produces DVI with the default format.
+Quote paths containing spaces. On Windows, the document path cannot contain
+a percent sign, an exclamation mark or a double quote.
+
+\flag{preflight} scans the main document up to
+\verb|\begin{document}| for literal \verb|\documentclass|,
+\verb|\usepackage| and \verb|\RequirePackage| declarations. A single query finds
+providers for missing names, and one install command fetches the packages
+with unique matches. A declaration inside a conditional branch can cause an
+unused package to be installed. Files loaded through macros or included
+documents can still be recovered when the engine reports them missing.
+
+\flag{latexmk} lets latexmk manage repeated runs, bibliographies and changes
+to input files. In single-engine mode, a successful run requesting Biber
+also triggers a switch to latexmk. Missing Biber and latexmk executables can
+be installed into a writable TeX Live installation. Their runtime dependencies,
+such as the Perl modules used by latexmk, must be available.
+\begin{verbatim}
+texlua texlive-pkgassist.lua --latexmk --preflight thesis.tex
+\end{verbatim}
+
+\section*{Map fonts and tools}
+Use \flag{font} when the name reported by fontspec differs from the TeX Live
+package name. Add the following options to a command to install
+\opt{libertinus-fonts} when fontspec reports that Libertinus Serif is missing.
+\begin{verbatim}
+--engine lualatex --font "Libertinus Serif=libertinus-fonts"
+\end{verbatim}
+Fonts available only from an operating system or a font vendor must be
+installed through that provider.
+
+\flag{require-tool makeindex=makeindex} checks for \opt{makeindex} on the
+executable search path before compiling. If absent, the right-hand name
+specifies the TeX Live package to install. The project's build rules control
+when to run the tool. Both mapping options may be repeated.
+
+\section*{Diagnose a failed build}
+The script prints engine and package-manager output and exits with a nonzero
+status on failure. If several runtime packages provide the same file, inspect
+the candidates and install the intended one. If the file remains missing
+after installation, check that the engine and \opt{tlmgr} belong to the same
+installation. Run \verb|kpsewhich subcaption.sty|, substituting the missing
+filename, to see which copy TeX can locate.
+
+Use \flag{help} for the option list and \flag{version} for the release
+identifier. Copyright \copyright\ 2026 Ruilin Mao. Distributed under the MIT License.
+\end{document}
